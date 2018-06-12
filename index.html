@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Electron App</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+    li{
+      overflow:hidden;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .active{
+      background: red;
+    }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar-fixed center-align" style="font-size:35px;">Playlist</nav>
+  <br/>
+  <div class=" row">
+    <div class="col s4">
+      <div style="position:fixed">
+        <img src="a1.jpg" alt="Song" width="210" style="border-radius:100px;">
+        <br />
+        <a class="waves-effect waves-light btn" onclick="document.getElementById('myFile').click()"><i class="material-icons left">music_note</i>Add</a>
+        <a class="waves-effect waves-light  btn-floating center" onclick="play()" id="pla"><i class="material-icons">play_arrow</i></a>
+        <a class="waves-effect waves-light  btn-floating " onclick="pause()" id="pau"><i class="material-icons">pause</i></a>
+    </div>
+  </div>
+<input type="file"  id="myFile" accept="audio/mp3,audio/*" onchange="getMusic()" hidden />
+  <audio id="aud"></audio>
+ <div class="col s8" style="overflow-y:auto;height:350px" >
+      <ul id="ull">
+      </ul>
+</div>
+
+</div>
+  <script>
+  const electron=require('electron');
+  const {ipcRenderer}=electron;
+  var ul=document.getElementById('ull');
+  ul.addEventListener('click',playing);
+  var aud=document.getElementById('aud');
+
+
+  function getMusic()
+  {
+    var music=document.getElementById("myFile");
+    console.log(music.files[0].path);
+    const li=document.createElement('li');
+    const itemText=document.createTextNode(music.files[0].name);
+    li.appendChild(itemText);
+    ul.appendChild(li);
+    ipcRenderer.send('item:path',{"path":music.files[0].path,"name":music.files[0].name});
+ }
+
+ function playing(e) {
+    var str=(e.target.innerText);
+   ipcRenderer.send('item:check',"anku");
+   ipcRenderer.on('item:check',function(e,item){
+     var i;
+     for(i=0;i<item.length;i++)
+     {
+       if(item[i].name==str)
+        aud.src=item[i].path;
+        var pla=document.getElementById('pla');
+         pla.classList.add("pulse");
+        aud.play();
+   }})
+}
+        function play(){
+          if(aud.src){
+          var pla=document.getElementById('pla');
+           pla.classList.add("pulse");
+       aud.play();
+     }}
+     function pause(){
+       var pla=document.getElementById('pla');
+       pla.classList.remove("pulse");
+       var pau=document.getElementById('pau');
+       aud.pause();
+     }
+
+
+  </script>
+
+   </body>
+</html>
+l>
